@@ -33,16 +33,20 @@ require(["jquery", "bootstrap", "howler.min", "sounds", "TweenLite.min", "CSSPlu
     });
 });
 var stage;
+
+
 wWidth = window.innerWidth;
 wHeight = window.innerHeight;
 
 
 function loaded(){
+
     stage = new Kinetic.Stage({
         container: 'game',
         height: wHeight,
         width: wWidth
     });
+    var mousePos = stage.getMousePosition();
 
     $('button').on('click', function (e){
         TweenLite.to('#mainTitle, #startGame', 1, {alpha:0, onComplete: startGame});
@@ -62,11 +66,14 @@ function loaded(){
         wHeight = window.innerHeight;
         $('#game').css({'height': wHeight, 'width': wWidth});
         stage.setSize(wWidth, wHeight);
-        rect.width = wWidth;
-        rect.height = wHeight;
+        rect.setWidth(wWidth);
+        rect.setHeight(wHeight);
     });
 
     function startGame(){
+        $('body').append('<div id="cursor"></div>');
+        var cursorHeight = $('#cursor').height() / 2;
+        var cursorWidth = $('#cursor').width() / 2;
         $('#game').css({'z-index':'10'});
 
         layer.add(rect);
@@ -145,7 +152,7 @@ function loaded(){
         // Update game objects
         function update(dt) {
             gameTime += dt;
-
+            mousePos = stage.getMousePosition();
             handleInput(dt);
             updateEntities(dt);
 
@@ -275,12 +282,15 @@ function loaded(){
         }
 
         function updateHud(){
+            if (mousePos){
+                $('#cursor').css({top: mousePos.y - cursorHeight, left: mousePos.x - cursorWidth});
+            }
             $('#hud').html("" +
-                "<p>X: "+player.pos[0]+"</p>" +
-                "<p>Y: "+player.pos[1]+"</p>" +
-                "<p>Speed: "+player.speed[0]+"</p>" +
-                "<p>Speed Angle: "+player.speed[1]+"</p>" +
-                "<p>Angle: "+player.angle+"</p>");
+                "<p unselectable='on'>X: "+player.pos[0]+"</p>" +
+                "<p unselectable='on'>Y: "+player.pos[1]+"</p>" +
+                "<p unselectable='on'>Speed: "+player.speed[0]+"</p>" +
+                "<p unselectable='on'>Speed Angle: "+player.speed[1]+"</p>" +
+                "<punselectable='on'>Angle: "+player.angle+"</p>");
         }
 
     } //end startGame

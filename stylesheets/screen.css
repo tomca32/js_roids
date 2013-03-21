@@ -14,20 +14,30 @@ canvas {
   image-rendering: -webkit-optimize-contrast;
 }
 
-/* line 19, ../sass/screen.scss */
+/* line 18, ../sass/screen.scss */
+#cursor {
+  background-image: url("../images/crosshair.png");
+  height: 50px;
+  width: 50px;
+  position: absolute;
+  z-index: 500;
+  pointer-events: none;
+}
+
+/* line 27, ../sass/screen.scss */
 html {
   height: 100%;
   width: 100%;
   overflow: hidden;
 }
 
-/* line 25, ../sass/screen.scss */
+/* line 33, ../sass/screen.scss */
 body {
   height: 100%;
   width: 100%;
   background: black;
 }
-/* line 30, ../sass/screen.scss */
+/* line 38, ../sass/screen.scss */
 body .backgroundImage {
   position: absolute;
   top: 0;
@@ -36,12 +46,12 @@ body .backgroundImage {
   height: 100%;
   width: 100%;
 }
-/* line 40, ../sass/screen.scss */
+/* line 48, ../sass/screen.scss */
 body #introBackground {
   background: url("../images/intro_bg.jpg");
   background-size: cover;
 }
-/* line 46, ../sass/screen.scss */
+/* line 54, ../sass/screen.scss */
 body #mainTitle {
   text-align: center;
   color: #a5a5a5;
@@ -51,13 +61,13 @@ body #mainTitle {
   top: 60%;
   width: 100%;
 }
-/* line 56, ../sass/screen.scss */
+/* line 64, ../sass/screen.scss */
 body #startGame {
   position: absolute;
   top: 70%;
   left: 50%;
 }
-/* line 61, ../sass/screen.scss */
+/* line 69, ../sass/screen.scss */
 body #game {
   height: 100%;
   width: 100%;
@@ -66,12 +76,26 @@ body #game {
   top: 0;
   left: 0;
   z-index: -900;
+  cursor: none;
 }
-/* line 70, ../sass/screen.scss */
+/* line 79, ../sass/screen.scss */
 body #hud {
   color: white;
   z-index: 1000;
   left: 0;
   top: 30px;
   position: absolute;
+}
+
+/* line 91, ../sass/screen.scss */
+*.unselectable {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  /*
+    Introduced in IE 10.
+    See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+  */
+  -ms-user-select: none;
+  user-select: none;
 }
