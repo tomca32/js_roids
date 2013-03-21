@@ -14,7 +14,8 @@ var requestAnimFrame = (function(){
 requirejs.config({
     shim: {
         'bootstrap' : ['jquery'],
-        'sounds': 'howler.min',
+        'sounds': ['howler.min'],
+        'entities': ['inheritance'],
         'CSSPlugin.min': 'TweenLite.min',
         'jquery': {
             exports: '$'
@@ -26,7 +27,7 @@ requirejs.config({
     }
 });
 
-require(["jquery", "bootstrap", "howler.min", "sounds", "TweenLite.min", "CSSPlugin.min", "resources", "input", "sprite", "movement", "kinetic-v4.3.3.min"], function($) {
+require(["jquery", "bootstrap", "howler.min", "sounds", "TweenLite.min", "CSSPlugin.min", "resources", "input", "sprite", "movement", "kinetic-v4.3.3.min", "inheritance", "entities"], function($) {
     //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
     $(function() {
         loaded();
@@ -115,7 +116,7 @@ function loaded(){
         }
 
         //Game State
-        var playerImage = new Image();
+        /*var playerImage = new Image();
         playerImage.src = 'images/playerShip.png';
         var player = {
             pos: [200, 200],
@@ -135,8 +136,10 @@ function loaded(){
             thrust: false,
             rotation: 90, //rotation speed in degrees per second,
             center: []
-        };
-        player.center = [player.pos[0]+player.size[0],player.pos[1]+player.size[1]];
+        };*/
+        var player = new Ship ("player", 1, [200,200], 90, 'images/playerShip.png', [32,48], [0, 6], 50, 20, 150, 50, 90);
+        console.log(player);
+        //player.center = [player.pos[0]+player.size[0],player.pos[1]+player.size[1]];
         gameLayer = new Kinetic.Layer();
         gameLayer.add(player.image);
         stage.add(gameLayer);
@@ -174,14 +177,15 @@ function loaded(){
 
         //Input Handler
         function handleInput(dt) {
-            if(input.isDown('DOWN') || input.isDown('s')) {
-               //player.pos[1] += playerSpeed * dt;
-            }
-
+            player.reverse = false;
             if(input.isDown('UP') || input.isDown('w')) {
                 player.thrust = true;
+                player.reverse = false;
             } else {
                 player.thrust = false;
+                if(input.isDown('DOWN') || input.isDown('s')) {
+                    player.reverse = true;
+                }
             }
 
             if(input.isDown('LEFT') || input.isDown('a')) {
