@@ -26,6 +26,11 @@ var Entity = Class.extend({
         }
     },
 
+    fireTurret: function(){
+        var newBullet = createEntity(entitiesJSON.weapons.redLaser, 'turretBullet', this.pos, this.angle);
+       return newBullet;
+    },
+
     hit: function(attacker) {
         if (this.hitPoints > 0){
             this.hitPoints = this.hitPoints - attacker.damage;
@@ -59,7 +64,15 @@ var Asteroid = Entity.extend({
         this.rotation = Math.floor(Math.random() * (rotation * 2 + 1)) - rotation;
         this.rotating = true;
     }
-})
+});
+
+var Bullet = Entity.extend({
+    init: function(name, hitPoints, pos, angle, imageURL, size, bonusOffset, speed, damage) {
+        this._super(name, hitPoints, pos, angle, imageURL, size, bonusOffset);
+        this.speed = speed;
+        this.damage = damage;
+    }
+});
 
 function createEntity(toCreate, entityType, position, angle){
     var toReturn;
@@ -97,6 +110,18 @@ function createEntity(toCreate, entityType, position, angle){
             }
             toReturn = new Asteroid(toCreate.name, toCreate.hitPoints, astPosition, angle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset,astSpeed, toCreate.rotationSpeed);
             break;
+        case 'turretBullet':
+            var dX = stage.getMousePosition().x - position[0];
+            var dY = stage.getMousePosition().y - position[1];
+
+            var costempAngle = dX / (Math.sqrt(Math.pow(dX,2)+Math.pow(dY,2)));
+            var tempAngle = Math.acos(costempAngle);
+            if (dY<0) tempAngle = 2*Math.PI - Math.abs(tempAngle);
+
+            var degAngle = tempAngle*(180/Math.PI)+90;
+
+            toReturn = new Bullet(toCreate.name, toCreate.hitPoints, position, degAngle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, [toCreate.speed, tempAngle], toCreate.damage);
+            //console.log(toReturn);
     }
     return toReturn;
 }
@@ -126,6 +151,17 @@ entitiesJSON = {
             "minSpeed": 25,
             "maxSpeed": 200,
             "rotationSpeed": 120
+        }
+    },
+    "weapons":{
+        "redLaser":{
+            name:"redLaser",
+            hitPoints: 1,
+            "imageURL": "images/redLaser.png",
+            "size": [11,25],
+            "bonusOffset": [0,0],
+            "speed": 600,
+            "damage": 1
         }
     }
 }

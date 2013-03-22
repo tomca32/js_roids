@@ -54,6 +54,7 @@ function loaded(){
     });
     var mousePos = stage.getMousePosition();
 
+
     $('button').on('click', function (e){
         TweenLite.to('#mainTitle, #startGame', 1, {alpha:0, onComplete: startGame});
 
@@ -138,6 +139,14 @@ function loaded(){
         var isGameOver;
         var terrainPattern;
 
+        //ZOOM
+        var zoom = function(e) {
+            var zoomAmount = e.wheelDeltaY*0.0001;
+            gameLayer.setScale(gameLayer.getScale().x+zoomAmount)
+            gameLayer.draw();
+        }
+
+        document.addEventListener("mousewheel", zoom, false)
         // Update game objects
         function update(dt) {
             gameTime += dt;
@@ -150,17 +159,6 @@ function loaded(){
             }
             handleInput(dt);
             updateEntities(dt);
-
-            // It gets harder over time by adding enemies using this
-            // equation: 1-.993^gameTime
-            /*if(Math.random() < 1 - Math.pow(.993, gameTime)) {
-                enemies.push({
-                    pos: [canvas.width,
-                        Math.random() * (canvas.height - 39)],
-                    sprite: new Sprite('img/sprites.png', [0, 78], [80, 39],
-                        6, [0, 1, 2, 3, 2, 1])
-                });
-            } */
 
             //checkCollisions();
 
@@ -190,24 +188,19 @@ function loaded(){
                 if (player.angle > 360) player.angle -= 360;
             }
 
-            /*if(input.isDown('SPACE') &&
+            if(input.isDown('SPACE') &&
                 !isGameOver &&
                 Date.now() - lastFire > 100) {
-                var x = player.pos[0] + player.sprite.size[0] / 2;
-                var y = player.pos[1] + player.sprite.size[1] / 2;
+                if (mousePos){
+                    var newBullet = player.fireTurret();
+                    bullets.push(newBullet);
 
-                bullets.push({ pos: [x, y],
-                    dir: 'forward',
-                    sprite: new Sprite('img/sprites.png', [0, 39], [18, 8]) });
-                bullets.push({ pos: [x, y],
-                    dir: 'up',
-                    sprite: new Sprite('img/sprites.png', [0, 50], [9, 5]) });
-                bullets.push({ pos: [x, y],
-                    dir: 'down',
-                    sprite: new Sprite('img/sprites.png', [0, 60], [9, 5]) });
+                    gameLayer.add(newBullet.image);
 
-                lastFire = Date.now();
-            }*/
+                    lastFire = Date.now();
+                }
+
+            }
         }
 
         function updateEntities(dt) {
@@ -216,21 +209,14 @@ function loaded(){
             updateMovement (player, dt);
             // Update all the bullets
             for(var i=0; i<bullets.length; i++) {
-                var bullet = bullets[i];
-
-                switch(bullet.dir) {
-                    case 'up': bullet.pos[1] -= bulletSpeed * dt; break;
-                    case 'down': bullet.pos[1] += bulletSpeed * dt; break;
-                    default:
-                        bullet.pos[0] += bulletSpeed * dt;
-                }
+                updateMovement(bullets[i], dt);
 
                 // Remove the bullet if it goes offscreen
-                if(bullet.pos[1] < 0 || bullet.pos[1] > canvas.height ||
+                /*if(bullet.pos[1] < 0 || bullet.pos[1] > canvas.height ||
                     bullet.pos[0] > canvas.width) {
                     bullets.splice(i, 1);
                     i--;
-                }
+                } */
             }
 
             // Update all the enemies
@@ -258,6 +244,10 @@ function loaded(){
                 enemies[i].image.setPosition(enemies[i].pos[0], enemies[i].pos[1]);
             }
 
+            for(var i=0; i<bullets.length; i++) {
+                bullets[i].image.setPosition(bullets[i].pos[0], bullets[i].pos[1]);
+            }
+
             stage.draw();
             updateHud();
            /*
@@ -275,15 +265,22 @@ function loaded(){
         }
 
         function updateHud(){
-            if (mousePos){
-                $('#cursor').css({top: mousePos.y - cursorHeight, left: mousePos.x - cursorWidth});
-            }
             $('#hud').html("" +
                 "<p unselectable='on'>X: "+player.pos[0]+"</p>" +
                 "<p unselectable='on'>Y: "+player.pos[1]+"</p>" +
                 "<p unselectable='on'>Speed: "+player.speed[0]+"</p>" +
                 "<p unselectable='on'>Speed Angle: "+player.speed[1]+"</p>" +
-                "<punselectable='on'>Angle: "+player.angle+"</p>");
+                "<p unselectable='on'>Angle: "+player.angle+"</p>" +
+                "<p id='mx' unselectable='on'></p>" +
+                "<p id='my' unselectable='on'></p>");
+            if (mousePos){
+                $('#cursor').css({top: mousePos.y - cursorHeight, left: mousePos.x - cursorWidth});
+                $('#mx').html("Mouse X: "+mousePos.x);
+                $('#my').html("Mouse Y: "+mousePos.y);
+            } else {
+                $('#mx').html("Mouse X: Unknown");
+                $('#my').html("Mouse Y: Unknown");
+            }
         }
 
     } //end startGame
