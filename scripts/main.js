@@ -97,7 +97,7 @@ function loaded(){
         //Resource Load
         resources.load([
             'images/playerShip.png',
-            'images/redLaser.png'
+            'images/redLaser.png',
         ]);
         resources.onReady(init);
 
@@ -111,35 +111,15 @@ function loaded(){
              });*/
 
             //reset();
+
             lastTime = Date.now();
             main();
         }
 
         //Game State
-        /*var playerImage = new Image();
-        playerImage.src = 'images/playerShip.png';
-        var player = {
-            pos: [200, 200],
-            image: new Kinetic.Image({
-                x: 200,
-                y: 200,
-                image: playerImage,
-                width: 32,
-                height: 48,
-                offset:[16,30]
-            }),
-            size: [32,48], //image size
-            acceleration: 50, //pixels per seconds squared
-            speed: [0,0], //Speed vector [pixels per second, angle of speed(0-360)]
-            maxSpeed: 150, //max speed in pixels per second
-            angle: 90,
-            thrust: false,
-            rotation: 90, //rotation speed in degrees per second,
-            center: []
-        };*/
-        var player = new Ship ("player", 1, [200,200], 90, 'images/playerShip.png', [32,48], [0, 6], 50, 20, 150, 50, 90);
-        console.log(player);
-        //player.center = [player.pos[0]+player.size[0],player.pos[1]+player.size[1]];
+
+        var player = createEntity('ship', 'corvette', [200,200], 90);
+        //var player = new Ship("player", 1, [200,200], 90, 'images/playerShip.png', [32,48], [0, 6], 50, 20, 150, 50, 90);
         gameLayer = new Kinetic.Layer();
         gameLayer.add(player.image);
         stage.add(gameLayer);

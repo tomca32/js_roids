@@ -50,3 +50,34 @@ var Ship = Entity.extend({
         this.rotation = rotation;
     }
 });
+
+function createEntity(entityType, entityName, position, angle){
+    var toReturn;
+    switch (entityType){
+        case 'ship':
+            var toCreate = entitiesJSON.ships[entityName];
+            toReturn = new Ship(toCreate.name, toCreate.hitPoints, position, angle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, toCreate.acceleration, toCreate.accReverse, toCreate.maxSpeed, toCreate.maxReverse, toCreate.rotationSpeed);
+            break;
+    }
+    return toReturn;
+}
+
+entitiesJSON = {
+    "ships":{
+        "corvette":{
+            "name": "corvette",
+            "hitPoints": 5,
+            "imageURL": "images/playerShip.png",
+            "size": [32,48],
+            "bonusOffset": [0,6],
+            "acceleration": 50,
+            "accReverse": 20,
+            "maxSpeed": 150,
+            "maxReverse": 50,
+            "rotationSpeed": 90
+        }
+    },
+    "asteroids":{
+
+    }
+}
