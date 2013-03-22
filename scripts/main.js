@@ -131,6 +131,7 @@ function loaded(){
         gameLayer.add(player.image);
         stage.add(gameLayer);
         var bullets = [];
+        var bulletsToRemove =[];
         var enemies = [];
         var explosions = [];
 
@@ -196,7 +197,7 @@ function loaded(){
                     bullets.push(newBullet);
 
                     gameLayer.add(newBullet.image);
-
+                    console.log(bullets);
                     lastFire = Date.now();
                 }
 
@@ -204,18 +205,22 @@ function loaded(){
         }
 
         function updateEntities(dt) {
+            if (!(player.image.getAbsolutePosition().x==player.pos[0])){
+            }
             // Update the player sprite animation
             //player.sprite.update(dt);
             updateMovement (player, dt);
             // Update all the bullets
             for(var i=0; i<bullets.length; i++) {
                 updateMovement(bullets[i], dt);
+                if (bullets[i].checkRange()){
+                    bulletsToRemove.push([i]);
+                }
 
                 // Remove the bullet if it goes offscreen
                 /*if(bullet.pos[1] < 0 || bullet.pos[1] > canvas.height ||
                     bullet.pos[0] > canvas.width) {
-                    bullets.splice(i, 1);
-                    i--;
+                    //bulletsToRemove.push[i];
                 } */
             }
 
@@ -234,6 +239,13 @@ function loaded(){
                     i--;
                 }
             }
+            //REMOVING OF BULLETS
+            bulletsToRemove.sort(function(a,b){return b-a});
+            var bulLength = bulletsToRemove.length;
+            for (var i=0; i< bulLength; i++){
+                bullets.splice(i,1);
+            }
+            bulletsToRemove = [];
         } //end updateEntities
 
         function render() {
@@ -251,9 +263,6 @@ function loaded(){
             stage.draw();
             updateHud();
            /*
-            ctx.fillStyle = terrainPattern;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
             // Render the player if the game isn't over
             if(!isGameOver) {
                 renderEntity(player);

@@ -18,6 +18,7 @@ var Entity = Class.extend({
         this.speed = [0,0];
         this.thrust = false;
         this.reverse = false;
+        this.distanceTravelled = 0;
 
         if (angle) {
             this.angle = angle;
@@ -40,8 +41,10 @@ var Entity = Class.extend({
         }
     },
 
-    destroy: function(){
-        if (this.name) console.log(this.name+" destroyed!");
+    destroy: function(toDestroy){
+        if (toDestroy.name) console.log(toDestroy.name+" destroyed!");
+        toDestroy.image.destroy();
+
     }
 });
 
@@ -67,10 +70,20 @@ var Asteroid = Entity.extend({
 });
 
 var Bullet = Entity.extend({
-    init: function(name, hitPoints, pos, angle, imageURL, size, bonusOffset, speed, damage) {
+    init: function(name, hitPoints, pos, angle, imageURL, size, bonusOffset, speed, damage, range) {
         this._super(name, hitPoints, pos, angle, imageURL, size, bonusOffset);
         this.speed = speed;
         this.damage = damage;
+        this.range = range;
+    },
+    checkRange: function() {
+        if (this.distanceTravelled >= this.range){
+            console.log(this);
+            console.log(this.distanceTravelled);
+            this.destroy(this);
+            return true;
+        }
+        return false;
     }
 });
 
@@ -120,7 +133,7 @@ function createEntity(toCreate, entityType, position, angle){
 
             var degAngle = tempAngle*(180/Math.PI)+90;
 
-            toReturn = new Bullet(toCreate.name, toCreate.hitPoints, position, degAngle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, [toCreate.speed, tempAngle], toCreate.damage);
+            toReturn = new Bullet(toCreate.name, toCreate.hitPoints, position, degAngle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, [toCreate.speed, tempAngle], toCreate.damage, toCreate.range);
             //console.log(toReturn);
     }
     return toReturn;
@@ -161,7 +174,8 @@ entitiesJSON = {
             "size": [11,25],
             "bonusOffset": [0,0],
             "speed": 600,
-            "damage": 1
+            "damage": 1,
+            "range": 1500
         }
     }
 }

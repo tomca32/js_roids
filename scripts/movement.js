@@ -30,9 +30,12 @@ function updateMovement(entity, dT){ //entity to update and delta time
     if (entity.rotating){
         entity.angle += entity.rotation *dT;
     }
-    entity.pos[0] = entity.pos[0]+(entity.speed[0]*Math.cos(entity.speed[1])*dT);
-    entity.pos[1] = entity.pos[1]+(entity.speed[0]*Math.sin(entity.speed[1])*dT);
-
+    var dX = entity.speed[0]*Math.cos(entity.speed[1])*dT;
+    var dY = entity.speed[0]*Math.sin(entity.speed[1])*dT;
+    var distance = Math.sqrt(Math.pow(dX,2)+ Math.pow(dY,2));
+    entity.pos[0] = entity.pos[0]+(dX);
+    entity.pos[1] = entity.pos[1]+(dY);
+    entity.distanceTravelled += distance;
     entity.image.setRotationDeg(entity.angle); //Kinetic method for rotating image
 
     function limit (value, maxValue, minValue){
