@@ -34,7 +34,12 @@ require(["jquery", "bootstrap", "howler.min", "sounds", "TweenLite.min", "CSSPlu
     });
 });
 var stage;
-
+function randomInt (rMin, rMax){
+    return Math.floor(Math.random() * (rMax - rMin + 1)) + rMin;
+}
+function randomReal(rmin, rmax) {
+    return Math.random() * (rmax - rmin) + rmin;
+}
 
 wWidth = window.innerWidth;
 wHeight = window.innerHeight;

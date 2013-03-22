@@ -55,7 +55,8 @@ var Asteroid = Entity.extend({
     init: function(name,hitPoints,pos,angle,imageURL,size, bonusOffset, speed, rotation) {
         this._super(name, hitPoints, pos, angle, imageURL, size, bonusOffset);
         this.speed = speed;
-        this.rotation = rotation;
+        //this.rotation = rotation;
+        this.rotation = Math.floor(Math.random() * (rotation * 2 + 1)) - rotation;
         this.rotating = true;
     }
 })
@@ -67,7 +68,34 @@ function createEntity(toCreate, entityType, position, angle){
             toReturn = new Ship(toCreate.name, toCreate.hitPoints, position, angle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, toCreate.acceleration, toCreate.accReverse, toCreate.maxSpeed, toCreate.maxReverse, toCreate.rotationSpeed);
             break;
         case 'asteroid':
-            toReturn = new Asteroid(toCreate.name, toCreate.hitPoints, position, angle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset,[Math.floor(Math.random() * (toCreate.maxSpeed - toCreate.minSpeed + 1)) +toCreate.minSpeed, Math.random() * (Math.PI*2 + 1)], toCreate.rotationSpeed);
+            var direction = randomInt(1,4);
+            var astPosition =[];
+            var astSpeed = [Math.floor(Math.random() * (toCreate.maxSpeed - toCreate.minSpeed + 1)) +toCreate.minSpeed,0];
+            switch (direction){
+                case 1:
+                    astPosition = [randomInt(0,wWidth), -50];
+                    astSpeed[1] = randomReal(0, Math.PI);
+                    break;
+                case 2:
+                    astPosition = [wWidth+50, randomInt(0,wHeight)];
+                    astSpeed[1] = randomReal(Math.PI/2, Math.PI *1.5);
+                    break;
+                case 3:
+                    astPosition = [randomInt(0,wWidth), wHeight+50];
+                    astSpeed[1] = randomReal(Math.PI, Math.PI*2);
+                    break;
+                case 4:
+                    astPosition = [-50, randomInt(0,wHeight)];
+                    var tempAngle = randomInt(1,2);
+                    if (tempAngle ==1){
+                        astSpeed[1] = randomReal(Math.PI*1.5, Math.PI*2);
+                    } else {
+                        astSpeed[1] = randomReal(0, Math.PI/2);
+                    }
+
+                    break;
+            }
+            toReturn = new Asteroid(toCreate.name, toCreate.hitPoints, astPosition, angle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset,astSpeed, toCreate.rotationSpeed);
             break;
     }
     return toReturn;
