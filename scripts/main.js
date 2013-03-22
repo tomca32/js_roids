@@ -98,6 +98,7 @@ function loaded(){
         resources.load([
             'images/playerShip.png',
             'images/redLaser.png',
+            'images/asteroid3.png'
         ]);
         resources.onReady(init);
 
@@ -118,7 +119,7 @@ function loaded(){
 
         //Game State
 
-        var player = createEntity('ship', 'corvette', [200,200], 90);
+        var player = createEntity(entitiesJSON.ships.corvette, 'ship', [200,200], 90);
         //var player = new Ship("player", 1, [200,200], 90, 'images/playerShip.png', [32,48], [0, 6], 50, 20, 150, 50, 90);
         gameLayer = new Kinetic.Layer();
         gameLayer.add(player.image);
@@ -136,6 +137,12 @@ function loaded(){
         function update(dt) {
             gameTime += dt;
             mousePos = stage.getMousePosition();
+            if (Math.random() < 0.02){
+                var astPosition = [Math.floor(Math.random() * (1200 - 0 + 1)) + 0, Math.floor(Math.random() * (800 - 0 + 1)) + 0];
+                var newEnemy = createEntity(entitiesJSON.asteroids.asteroid3, 'asteroid', astPosition,0);
+                gameLayer.add(newEnemy.image);
+                enemies.push(newEnemy);
+            }
             handleInput(dt);
             updateEntities(dt);
 
@@ -223,14 +230,7 @@ function loaded(){
 
             // Update all the enemies
             for(var i=0; i<enemies.length; i++) {
-                enemies[i].pos[0] -= enemySpeed * dt;
-                enemies[i].sprite.update(dt);
-
-                // Remove if offscreen
-                if(enemies[i].pos[0] + enemies[i].sprite.size[0] < 0) {
-                    enemies.splice(i, 1);
-                    i--;
-                }
+                updateMovement(enemies[i], dt);
             }
 
             // Update all the explosions
@@ -249,6 +249,10 @@ function loaded(){
             //layer.clear();
             //layer.add(rect);
             player.image.setPosition(player.pos[0], player.pos[1]);
+            for(var i=0; i<enemies.length; i++) {
+                enemies[i].image.setPosition(enemies[i].pos[0], enemies[i].pos[1]);
+            }
+
             stage.draw();
             updateHud();
            /*

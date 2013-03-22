@@ -51,12 +51,23 @@ var Ship = Entity.extend({
     }
 });
 
-function createEntity(entityType, entityName, position, angle){
+var Asteroid = Entity.extend({
+    init: function(name,hitPoints,pos,angle,imageURL,size, bonusOffset, speed, rotation) {
+        this._super(name, hitPoints, pos, angle, imageURL, size, bonusOffset);
+        this.speed = speed;
+        this.rotation = rotation;
+        this.rotating = true;
+    }
+})
+
+function createEntity(toCreate, entityType, position, angle){
     var toReturn;
     switch (entityType){
         case 'ship':
-            var toCreate = entitiesJSON.ships[entityName];
             toReturn = new Ship(toCreate.name, toCreate.hitPoints, position, angle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, toCreate.acceleration, toCreate.accReverse, toCreate.maxSpeed, toCreate.maxReverse, toCreate.rotationSpeed);
+            break;
+        case 'asteroid':
+            toReturn = new Asteroid(toCreate.name, toCreate.hitPoints, position, angle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset,[Math.floor(Math.random() * (toCreate.maxSpeed - toCreate.minSpeed + 1)) +toCreate.minSpeed, Math.random() * (Math.PI*2 + 1)], toCreate.rotationSpeed);
             break;
     }
     return toReturn;
@@ -78,6 +89,15 @@ entitiesJSON = {
         }
     },
     "asteroids":{
-
+        "asteroid3":{
+            "name": "asteroid3",
+            "hitPoints": 3,
+            "imageURL": "images/asteroid3.png",
+            "size": [100,92],
+            "bonusOffset": [0,0],
+            "minSpeed": 25,
+            "maxSpeed": 200,
+            "rotationSpeed": 120
+        }
     }
 }
