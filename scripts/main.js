@@ -1,3 +1,5 @@
+var debug = true;
+
 // A cross-browser requestAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
 var requestAnimFrame = (function(){
@@ -27,19 +29,9 @@ requirejs.config({
     }
 });
 
-require(["jquery", "bootstrap", "howler.min", "sounds", "TweenLite.min", "CSSPlugin.min", "resources", "input", "sprite", "movement", "kinetic-v4.3.3.min", "inheritance", "entities"], function($) {
-    //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
-    $(function() {
-        loaded();
-    });
-});
+require(["functions", "jquery", "bootstrap", "howler.min", "sounds", "TweenLite.min", "CSSPlugin.min", "resources", "input", "sprite", "movement", "kinetic-v4.3.3.min", "inheritance", "entities"], function($) {loaded();});
 var stage;
-function randomInt (rMin, rMax){
-    return Math.floor(Math.random() * (rMax - rMin + 1)) + rMin;
-}
-function randomReal(rmin, rmax) {
-    return Math.random() * (rmax - rmin) + rmin;
-}
+
 
 wWidth = window.innerWidth;
 wHeight = window.innerHeight;
@@ -95,6 +87,7 @@ function loaded(){
 
             update(dt);
             render();
+            removal();
 
             lastTime = now;
             requestAnimFrame(main);
@@ -104,7 +97,8 @@ function loaded(){
         resources.load([
             'images/playerShip.png',
             'images/redLaser.png',
-            'images/asteroid3.png'
+            'images/asteroid3.png',
+            'images/debugPixel.jpg'
         ]);
         resources.onReady(init);
 
@@ -124,15 +118,47 @@ function loaded(){
         }
 
         //Game State
+        var debugObjects =[];
 
-        var player = createEntity(entitiesJSON.ships.corvette, 'ship', [200,200], 90);
-        //var player = new Ship("player", 1, [200,200], 90, 'images/playerShip.png', [32,48], [0, 6], 50, 20, 150, 50, 90);
+        var player = createEntity(entitiesJSON.ships.corvette, 'ship', [200,200], 0);
+        if (debug){
+            var pX = player.pos[0];
+            var pY = player.pos[1];
+            var pW = player.image.getWidth();
+            var pH = player.image.getHeight();
+
+            var circle = new Kinetic.Circle({
+                x: pX,
+                y: pY,
+                radius: Math.sqrt(Math.pow(pH,2)+Math.pow(pW,2))/2,
+                fill: 'none',
+                stroke: 'red',
+                strokeWidth: 2
+            });
+            var pAngle = player.angle;
+            if (pAngle < 0) pAngle += 360;
+            var pAngle = toRadians(pAngle);
+            var debug1 = new Entity ('redPixel',-1,[pX-(Math.abs(Math.cos(pAngle)) * (pW/2)), pY - (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
+            var debug2 = new Entity ('redPixel',-1,[pX+(Math.abs(Math.cos(pAngle)) * (pW/2)), pY - (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
+            var debug3 = new Entity ('redPixel',-1,[pX-(Math.abs(Math.cos(pAngle)) * (pW/2)), pY + (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
+            var debug4 = new Entity ('redPixel',-1,[pX+(Math.abs(Math.cos(pAngle)) * (pW/2)), pY + (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
+            debugObjects.push(debug1,debug2,debug3,debug4);
+        }
         gameLayer = new Kinetic.Layer();
         gameLayer.add(player.image);
+        if (debug){
+            var debugLen = debugObjects.length;
+            for (var i=0; i<debugLen; i++){
+                gameLayer.add(debugObjects[i].image);
+            }
+            gameLayer.add(circle);
+
+        }
         stage.add(gameLayer);
         var bullets = [];
         var bulletsToRemove =[];
         var enemies = [];
+        var enemiesToRemove = [];
         var explosions = [];
 
         var lastFire = Date.now();
@@ -143,11 +169,11 @@ function loaded(){
         //ZOOM
         var zoom = function(e) {
             var zoomAmount = e.wheelDeltaY*0.0001;
-            gameLayer.setScale(gameLayer.getScale().x+zoomAmount)
+            gameLayer.setScale(gameLayer.getScale().x+zoomAmount);
             gameLayer.draw();
         }
 
-        document.addEventListener("mousewheel", zoom, false)
+        document.addEventListener("mousewheel", zoom, false);
         // Update game objects
         function update(dt) {
             gameTime += dt;
@@ -205,31 +231,36 @@ function loaded(){
         }
 
         function updateEntities(dt) {
-            if (!(player.image.getAbsolutePosition().x==player.pos[0])){
-            }
             // Update the player sprite animation
             //player.sprite.update(dt);
             updateMovement (player, dt);
-            // Update all the bullets
-            for(var i=0; i<bullets.length; i++) {
-                updateMovement(bullets[i], dt);
-                if (bullets[i].checkRange()){
-                    bulletsToRemove.push([i]);
-                }
-
-                // Remove the bullet if it goes offscreen
-                /*if(bullet.pos[1] < 0 || bullet.pos[1] > canvas.height ||
-                    bullet.pos[0] > canvas.width) {
-                    //bulletsToRemove.push[i];
-                } */
+            if (debug) {
+                debugPixelPosition(debug1, player,1);
+                debugPixelPosition(debug2, player, 2);
+                debugPixelPosition(debug3, player, 3);
+                debugPixelPosition(debug4, player, 4);
             }
 
             // Update all the enemies
-            for(var i=0; i<enemies.length; i++) {
+            var eneLength = enemies.length; //optimizing for loop
+            for(var i=0; i<eneLength; i++) {
                 updateMovement(enemies[i], dt);
             }
 
-            // Update all the explosions
+            // Update all the bullets
+            var bulLength = bullets.length; //optimizing for loop
+            for(var i=0; i<bulLength; i++) {
+                updateMovement(bullets[i], dt);
+                //removing bullets out of range
+                if (bullets[i].checkRange()){
+                    bulletsToRemove.push([i]);
+                } else {
+                }
+            }
+
+
+
+            //TODO Update all the explosions
             for(var i=0; i<explosions.length; i++) {
                 explosions[i].sprite.update(dt);
 
@@ -239,13 +270,27 @@ function loaded(){
                     i--;
                 }
             }
-            //REMOVING OF BULLETS
-            bulletsToRemove.sort(function(a,b){return b-a});
-            var bulLength = bulletsToRemove.length;
-            for (var i=0; i< bulLength; i++){
-                bullets.splice(i,1);
-            }
+
+            bullets = remove(bullets, bulletsToRemove);
             bulletsToRemove = [];
+
+            //COLLISION DETECTION
+            var bulLen = bullets.length;
+            var eneLen = enemies.length;
+            for (var i = 0; i < bulLen; i++){
+                for (var j = 0; j < eneLen; j++){
+                    if (simpleCollision(bullets[i], enemies[j])) {
+                        if (bullets[i].hit(bullets[i]) == 'dead') {
+                            bullets[i].destroy();
+                            bulletsToRemove.push(i);
+                        }
+                        if (enemies[j].hit(bullets[i]) == 'dead'){
+                            enemies[j].destroy();
+                            enemiesToRemove.push(j);
+                        }
+                    }
+                }
+            }
         } //end updateEntities
 
         function render() {
@@ -260,6 +305,11 @@ function loaded(){
                 bullets[i].image.setPosition(bullets[i].pos[0], bullets[i].pos[1]);
             }
 
+            for(var i=0;i<debugLen;i++){
+                debugObjects[i].image.setPosition(debugObjects[i].pos[0], debugObjects[i].pos[1]);
+                circle.setPosition(player.pos[0], player.pos[1]);
+            }
+
             stage.draw();
             updateHud();
            /*
@@ -271,6 +321,14 @@ function loaded(){
             renderEntities(bullets);
             renderEntities(enemies);
             renderEntities(explosions);*/
+        }
+
+        function removal(){
+
+            bullets = remove(bullets, bulletsToRemove);
+            bulletsToRemove = [];
+            enemies = remove(enemies, enemiesToRemove);
+            enemiesToRemove = [];
         }
 
         function updateHud(){
@@ -290,6 +348,18 @@ function loaded(){
                 $('#mx').html("Mouse X: Unknown");
                 $('#my').html("Mouse Y: Unknown");
             }
+        }
+
+        //Collision detection
+        function collides(x, y, r, b, x2, y2, r2, b2) {
+            return !(r <= x2 || x > r2 ||
+                b <= y2 || y > b2);
+        }
+        function boxCollides(pos, size, pos2, size2) {
+            return collides(pos[0], pos[1],
+                pos[0] + size[0], pos[1] + size[1],
+                pos2[0], pos2[1],
+                pos2[0] + size2[0], pos2[1] + size2[1]);
         }
 
     } //end startGame

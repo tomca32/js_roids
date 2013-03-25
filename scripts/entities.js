@@ -9,6 +9,7 @@ var Entity = Class.extend({
             image: thisImage,
             width: size[0],
             height: size[1],
+            //offset: [0,0]
             offset:[(size[0]/2)+bonusOffset[0],(size[1]/2)+bonusOffset[1]]
         });
 
@@ -20,7 +21,8 @@ var Entity = Class.extend({
         this.reverse = false;
         this.distanceTravelled = 0;
 
-        if (angle) {
+        if (angle!=undefined) {
+           // this.angle = angle;
             this.angle = angle;
         } else {
             this.angle = 90;
@@ -41,10 +43,9 @@ var Entity = Class.extend({
         }
     },
 
-    destroy: function(toDestroy){
-        if (toDestroy.name) console.log(toDestroy.name+" destroyed!");
-        toDestroy.image.destroy();
-
+    destroy: function(){
+        if (this.name) console.log(this.name+" destroyed!");
+        this.image.destroy();
     }
 });
 
@@ -70,11 +71,13 @@ var Asteroid = Entity.extend({
 });
 
 var Bullet = Entity.extend({
-    init: function(name, hitPoints, pos, angle, imageURL, size, bonusOffset, speed, damage, range) {
+    init: function(name, hitPoints, pos, angle, imageURL, size, bonusOffset, speed, damage, range, collisionPoints) {
         this._super(name, hitPoints, pos, angle, imageURL, size, bonusOffset);
         this.speed = speed;
         this.damage = damage;
         this.range = range;
+        this.type = 'simple'; //simple entity has only points for collision, no polygons
+        this.collisionPoints = collisionPoints;
     },
     checkRange: function() {
         if (this.distanceTravelled >= this.range){
@@ -133,7 +136,7 @@ function createEntity(toCreate, entityType, position, angle){
 
             var degAngle = tempAngle*(180/Math.PI)+90;
 
-            toReturn = new Bullet(toCreate.name, toCreate.hitPoints, position, degAngle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, [toCreate.speed, tempAngle], toCreate.damage, toCreate.range);
+            toReturn = new Bullet(toCreate.name, toCreate.hitPoints, position, degAngle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, [toCreate.speed, tempAngle], toCreate.damage, toCreate.range, toCreate.collisionPoints);
             //console.log(toReturn);
     }
     return toReturn;
@@ -145,8 +148,8 @@ entitiesJSON = {
             "name": "corvette",
             "hitPoints": 5,
             "imageURL": "images/playerShip.png",
-            "size": [32,48],
-            "bonusOffset": [0,6],
+            "size": [48,32],
+            "bonusOffset": [0,0],
             "acceleration": 50,
             "accReverse": 20,
             "maxSpeed": 150,
@@ -175,7 +178,8 @@ entitiesJSON = {
             "bonusOffset": [0,0],
             "speed": 600,
             "damage": 1,
-            "range": 1500
+            "range": 1500,
+            "collisionPoints": [[4,1], [5,1], [3,8], [4,18], [6,13]]
         }
     }
 }

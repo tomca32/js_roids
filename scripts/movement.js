@@ -1,6 +1,8 @@
 function updateMovement(entity, dT){ //entity to update and delta time
 
-    var angleRad = (entity.angle-90) * (Math.PI / 180);
+    //oldSpeed = [firstValue, secondValue]
+
+    var angleRad = (entity.angle) * (Math.PI / 180);
 
     if (entity.thrust || entity.reverse){
 
@@ -18,9 +20,12 @@ function updateMovement(entity, dT){ //entity to update and delta time
         var cosineNewAngle = destinationPoint[0] / entity.speed[0];
 
         //limiting destination point and speed to maxSpeed
-        destinationPoint[0] = limit(destinationPoint[0], entity.maxSpeed, entity.maxSpeed*(-1));
-        destinationPoint[1] = limit(destinationPoint[1], entity.maxSpeed, entity.maxSpeed*(-1));
-        entity.speed[0] = limit(entity.speed[0], entity.maxSpeed, entity.maxSpeed*(-1));
+        if (oldSpeed[0] >= entity.maxSpeed){
+            destinationPoint[0] = limit(destinationPoint[0], entity.maxSpeed, entity.maxSpeed*(-1));
+            destinationPoint[1] = limit(destinationPoint[1], entity.maxSpeed, entity.maxSpeed*(-1));
+            entity.speed[0] = limit(entity.speed[0], entity.maxSpeed, entity.maxSpeed*(-1));
+        }
+
 
         entity.speed[1] = Math.acos(cosineNewAngle);
         if (destinationPoint[1] < 0) entity.speed[1] = 2*Math.PI - entity.speed[1];
@@ -29,6 +34,11 @@ function updateMovement(entity, dT){ //entity to update and delta time
 
     if (entity.rotating){
         entity.angle += entity.rotation *dT;
+        if (entity.angle < 0){
+            entity.angle += 360
+        } else if (entity.angle > 360) {
+            entity.angle -= 360;
+        }
     }
     var dX = entity.speed[0]*Math.cos(entity.speed[1])*dT;
     var dY = entity.speed[0]*Math.sin(entity.speed[1])*dT;
