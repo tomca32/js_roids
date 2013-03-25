@@ -1,4 +1,4 @@
-var debug = true;
+var debug = false;
 
 // A cross-browser requestAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
@@ -138,10 +138,10 @@ function loaded(){
             var pAngle = player.angle;
             if (pAngle < 0) pAngle += 360;
             var pAngle = toRadians(pAngle);
-            var debug1 = new Entity ('redPixel',-1,[pX-(Math.abs(Math.cos(pAngle)) * (pW/2)), pY - (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
-            var debug2 = new Entity ('redPixel',-1,[pX+(Math.abs(Math.cos(pAngle)) * (pW/2)), pY - (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
-            var debug3 = new Entity ('redPixel',-1,[pX-(Math.abs(Math.cos(pAngle)) * (pW/2)), pY + (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
-            var debug4 = new Entity ('redPixel',-1,[pX+(Math.abs(Math.cos(pAngle)) * (pW/2)), pY + (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
+            //var debug1 = new Entity ('redPixel',-1,[pX-(Math.abs(Math.cos(pAngle)) * (pW/2)), pY - (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
+            //var debug2 = new Entity ('redPixel',-1,[pX+(Math.abs(Math.cos(pAngle)) * (pW/2)), pY - (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
+            //var debug3 = new Entity ('redPixel',-1,[pX-(Math.abs(Math.cos(pAngle)) * (pW/2)), pY + (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
+            //var debug4 = new Entity ('redPixel',-1,[pX+(Math.abs(Math.cos(pAngle)) * (pW/2)), pY + (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
             debugObjects.push(debug1,debug2,debug3,debug4);
         }
         gameLayer = new Kinetic.Layer();

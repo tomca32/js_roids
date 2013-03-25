@@ -1,25 +1,29 @@
 var Entity = Class.extend({
-    init: function(name, hitPoints, pos, angle, imageURL, size, bonusOffset) {
+    init: function(newEntity, pos, angle) {
         var that=this;
         var thisImage = new Image();
-        thisImage.src = imageURL;
+        thisImage.src = newEntity.imageURL;
         that.image = new Kinetic.Image({
             x: pos[0],
             y: pos[1],
             image: thisImage,
-            width: size[0],
-            height: size[1],
+            width: newEntity.size[0],
+            height: newEntity.size[1],
             //offset: [0,0]
-            offset:[(size[0]/2)+bonusOffset[0],(size[1]/2)+bonusOffset[1]]
+            offset:[(newEntity.size[0]/2)+newEntity.bonusOffset[0],(newEntity.size[1]/2)+newEntity.bonusOffset[1]]
         });
 
-        if(name) that.name = name;
-        this.hitPoints = hitPoints;
+        if(newEntity.name) that.name = newEntity.name;
+        this.hitPoints = newEntity.hitPoints;
         this.pos = [pos[0], pos[1]];
         this.speed = [0,0];
         this.thrust = false;
         this.reverse = false;
         this.distanceTravelled = 0;
+
+        if (newEntity.sprites) {
+            this.sprites = newEntity.sprites;
+        }
 
         if (angle!=undefined) {
            // this.angle = angle;
@@ -31,6 +35,7 @@ var Entity = Class.extend({
 
     fireTurret: function(){
         var newBullet = createEntity(entitiesJSON.weapons.redLaser, 'turretBullet', this.pos, this.angle);
+        console.log(newBullet);
        return newBullet;
     },
 
@@ -50,34 +55,36 @@ var Entity = Class.extend({
 });
 
 var Ship = Entity.extend({
-    init: function(name, hitPoints, pos, angle, imageURL, size, bonusOffset, acceleration, accReverse, maxSpeed, maxReverse, rotation) {
-        this._super(name, hitPoints, pos, angle, imageURL, size, bonusOffset);
-        this.acceleration = acceleration;
-        this.accReverse = accReverse;
-        this.maxReverse = maxReverse;
-        this.maxSpeed = maxSpeed;
-        this.rotation = rotation;
+    init: function(newShip, pos, angle) {
+        this._super(newShip, pos, angle);
+        this.acceleration = newShip.acceleration;
+        this.accReverse = newShip.accReverse;
+        this.maxReverse = newShip.maxReverse;
+        this.maxSpeed = newShip.maxSpeed;
+        this.rotation = newShip.rotationSpeed;
     }
 });
 
 var Asteroid = Entity.extend({
-    init: function(name,hitPoints,pos,angle,imageURL,size, bonusOffset, speed, rotation) {
-        this._super(name, hitPoints, pos, angle, imageURL, size, bonusOffset);
-        this.speed = speed;
+    init: function(newAsteroid, pos, angle, astSpeed) {
+        this._super(newAsteroid, pos, angle);
+        this.speed = astSpeed;
         //this.rotation = rotation;
-        this.rotation = Math.floor(Math.random() * (rotation * 2 + 1)) - rotation;
+        this.rotation = Math.floor(Math.random() * (newAsteroid.rotationSpeed * 2 + 1)) - newAsteroid.rotationSpeed;
         this.rotating = true;
     }
 });
 
 var Bullet = Entity.extend({
-    init: function(name, hitPoints, pos, angle, imageURL, size, bonusOffset, speed, damage, range, collisionPoints) {
-        this._super(name, hitPoints, pos, angle, imageURL, size, bonusOffset);
-        this.speed = speed;
-        this.damage = damage;
-        this.range = range;
+    init: function(newBullet, pos, angle) {
+        this._super(newBullet, pos, angle);
+        this.speed = [newBullet.speed, toRadians(angle-90)];
+        this.damage = newBullet.damage;
+        this.range = newBullet.range;
         this.type = 'simple'; //simple entity has only points for collision, no polygons
-        this.collisionPoints = collisionPoints;
+        this.collisionPoints = newBullet.collisionPoints;
+        console.log(this);
+
     },
     checkRange: function() {
         if (this.distanceTravelled >= this.range){
@@ -94,7 +101,7 @@ function createEntity(toCreate, entityType, position, angle){
     var toReturn;
     switch (entityType){
         case 'ship':
-            toReturn = new Ship(toCreate.name, toCreate.hitPoints, position, angle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, toCreate.acceleration, toCreate.accReverse, toCreate.maxSpeed, toCreate.maxReverse, toCreate.rotationSpeed);
+            toReturn = new Ship(toCreate, position, angle);
             break;
         case 'asteroid':
             var direction = randomInt(1,4);
@@ -124,7 +131,7 @@ function createEntity(toCreate, entityType, position, angle){
 
                     break;
             }
-            toReturn = new Asteroid(toCreate.name, toCreate.hitPoints, astPosition, angle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset,astSpeed, toCreate.rotationSpeed);
+            toReturn = new Asteroid(toCreate, astPosition, angle, astSpeed);
             break;
         case 'turretBullet':
             var dX = stage.getMousePosition().x - position[0];
@@ -136,8 +143,8 @@ function createEntity(toCreate, entityType, position, angle){
 
             var degAngle = tempAngle*(180/Math.PI)+90;
 
-            toReturn = new Bullet(toCreate.name, toCreate.hitPoints, position, degAngle, toCreate.imageURL, toCreate.size, toCreate.bonusOffset, [toCreate.speed, tempAngle], toCreate.damage, toCreate.range, toCreate.collisionPoints);
-            //console.log(toReturn);
+            toReturn = new Bullet(toCreate, position, degAngle);
+            console.log(toReturn);
     }
     return toReturn;
 }
