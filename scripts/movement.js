@@ -2,9 +2,20 @@ function updateMovement(entity, dT){ //entity to update and delta time
 
     //oldSpeed = [firstValue, secondValue]
 
-    var angleRad = (entity.angle) * (Math.PI / 180);
+    var angleRad = toRadians(entity.angle);
 
     if (entity.thrust || entity.reverse){
+
+        if (entity.thrustSound){
+            //console.log(entity.thrustSound._pos);
+            if (!entity.thrustPlaying) {
+                entity.thrustPlaying = true;
+                entity.thrustSound.volume(0.0);
+                entity.thrustSound.play();
+                entity.thrustSound.fadeIn(0.3, 300);
+            }
+        }
+
 
         if (entity.thrust) {
             var acceleration = [entity.acceleration * dT, angleRad];
@@ -30,6 +41,13 @@ function updateMovement(entity, dT){ //entity to update and delta time
         entity.speed[1] = Math.acos(cosineNewAngle);
         if (destinationPoint[1] < 0) entity.speed[1] = 2*Math.PI - entity.speed[1];
 
+    } else {
+        if (entity.thrustSound && entity.thrustPlaying){
+            entity.thrustSound.fadeOut(0.0, 300, function() {
+               entity.thrustSound.stop();
+                entity.thrustPlaying = false;
+            });
+        }
     }
 
     if (entity.rotating){
@@ -47,6 +65,18 @@ function updateMovement(entity, dT){ //entity to update and delta time
     entity.pos[1] = entity.pos[1]+(dY);
     entity.distanceTravelled += distance;
     entity.image.setRotationDeg(entity.angle); //Kinetic method for rotating image
+
+    if (entity.thrustImage){
+        entity.thrustImage.setPosition(entity.pos[0]+entity.thrustPosition[0]*Math.cos(angleRad), entity.pos[1]+entity.thrustPosition[0]*Math.sin(angleRad));
+        entity.thrustImage.setRotationDeg(entity.angle);
+
+        if (entity.thrust){
+            entity.thrustImage.setOpacity(1);
+        } else {
+            entity.thrustImage.setOpacity(0);
+        }
+
+    }
 
     function limit (value, maxValue, minValue){
 

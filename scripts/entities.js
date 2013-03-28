@@ -31,6 +31,7 @@ var Entity = Class.extend({
         } else {
             this.angle = 90;
         }
+        gameLayer.add(this.image);
     },
 
     fireTurret: function(){
@@ -62,6 +63,27 @@ var Ship = Entity.extend({
         this.maxReverse = newShip.maxReverse;
         this.maxSpeed = newShip.maxSpeed;
         this.rotation = newShip.rotationSpeed;
+        if (newShip.thrustURL){
+            var thrustImg = new Image();
+            thrustImg.src =newShip.thrustURL;
+            this.thrustImage = new Kinetic.Image({
+                x: pos[0]+newShip.thrustPosition[0],
+                y: pos[1]+newShip.thrustPosition[1],
+                image: thrustImg,
+                opacity:0,
+                offset:[newShip.thrustSize[0]/2,newShip.thrustSize[1]/2],
+                width: newShip.thrustSize[0],
+                height: newShip.thrustSize[1]
+            });
+            this.thrustPosition = newShip.thrustPosition;
+            gameLayer.add(this.thrustImage);
+        }
+        if (newShip.thrustSound){
+            this.thrustSound = newShip.thrustSound;
+            this.thrustPlaying = false;
+        }
+
+
     }
 });
 
@@ -161,7 +183,17 @@ entitiesJSON = {
             "accReverse": 20,
             "maxSpeed": 150,
             "maxReverse": 50,
-            "rotationSpeed": 90
+            "rotationSpeed": 90,
+            "thrustURL": "images/playerExhaust.png",
+            "thrustPosition": [-28,0],
+            "thrustSize": [8,4],
+            "thrustSound": new Howl ({
+                urls: ['sounds/effects/playerThrust.mp3', 'sounds/effects/playerThrust.ogg'],
+                volume:1.0,
+                autoplay: false,
+                buffer: true,
+                loop: true
+            })
         }
     },
     "asteroids":{

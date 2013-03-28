@@ -1,12 +1,15 @@
 var sounds = {};
 sounds.music = {};
+sounds.effects ={};
 
 sounds.music.intro = new Howl ({
     urls: ['sounds/music/intro.mp3', 'sounds/music/intro.ogg'],
+    volume: 0.05,
     autoplay: true,
     buffer: true,
     loop: true
 });
+
 /*sounds.music = new Howl({
 	urls: ['http://gandzo.com/meow/asteroid/ambient.mp3', 'http://gandzo.com/meow/asteroid/ambient.ogg'],
 	autoplay: true,

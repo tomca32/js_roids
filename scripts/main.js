@@ -98,7 +98,8 @@ function loaded(){
             'images/playerShip.png',
             'images/redLaser.png',
             'images/asteroid3.png',
-            'images/debugPixel.jpg'
+            'images/debugPixel.jpg',
+            'images/playerExhaust.png'
         ]);
         resources.onReady(init);
 
@@ -119,6 +120,7 @@ function loaded(){
 
         //Game State
         var debugObjects =[];
+        gameLayer = new Kinetic.Layer();
 
         var player = createEntity(entitiesJSON.ships.corvette, 'ship', [200,200], 0);
         if (debug){
@@ -144,8 +146,8 @@ function loaded(){
             //var debug4 = new Entity ('redPixel',-1,[pX+(Math.abs(Math.cos(pAngle)) * (pW/2)), pY + (Math.abs(Math.sin(pAngle)) * pH/2)], 0, 'images/debugPixel.jpg', [3,3], [0,0]);
             debugObjects.push(debug1,debug2,debug3,debug4);
         }
-        gameLayer = new Kinetic.Layer();
-        gameLayer.add(player.image);
+
+        //gameLayer.add(player.image);
         if (debug){
             var debugLen = debugObjects.length;
             for (var i=0; i<debugLen; i++){
@@ -181,7 +183,6 @@ function loaded(){
             if (Math.random() < 0.02){
                 var astPosition = [Math.floor(Math.random() * (1200 - 0 + 1)) + 0, Math.floor(Math.random() * (800 - 0 + 1)) + 0];
                 var newEnemy = createEntity(entitiesJSON.asteroids.asteroid3, 'asteroid', astPosition,0);
-                gameLayer.add(newEnemy.image);
                 enemies.push(newEnemy);
             }
             handleInput(dt);
@@ -222,7 +223,7 @@ function loaded(){
                     var newBullet = player.fireTurret();
                     bullets.push(newBullet);
 
-                    gameLayer.add(newBullet.image);
+                    //gameLayer.add(newBullet.image);
                     console.log(bullets);
                     lastFire = Date.now();
                 }
