@@ -4,7 +4,7 @@ sounds.effects ={};
 
 sounds.music.intro = new Howl ({
     urls: ['sounds/music/intro.mp3', 'sounds/music/intro.ogg'],
-    volume: 0.05,
+    volume: 0.2,
     autoplay: true,
     buffer: true,
     loop: true

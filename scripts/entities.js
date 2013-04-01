@@ -36,8 +36,8 @@ var Entity = Class.extend({
 
     fireTurret: function(){
         var newBullet = createEntity(entitiesJSON.weapons.redLaser, 'turretBullet', this.pos, this.angle);
-        console.log(newBullet);
-       return newBullet;
+        newBullet.fireSound.play();
+        return newBullet;
     },
 
     hit: function(attacker) {
@@ -105,6 +105,7 @@ var Bullet = Entity.extend({
         this.range = newBullet.range;
         this.type = 'simple'; //simple entity has only points for collision, no polygons
         this.collisionPoints = newBullet.collisionPoints;
+        this.fireSound = newBullet.fireSound;
         console.log(this);
 
     },
@@ -186,12 +187,12 @@ entitiesJSON = {
             "rotationSpeed": 90,
             "thrustURL": "images/playerExhaust.png",
             "thrustPosition": [-28,0],
-            "thrustSize": [8,4],
+            "thrustSize": [20,12],
             "thrustSound": new Howl ({
                 urls: ['sounds/effects/playerThrust.mp3', 'sounds/effects/playerThrust.ogg'],
                 volume:1.0,
                 autoplay: false,
-                buffer: true,
+                buffer: false,
                 loop: true
             })
         }
@@ -218,7 +219,13 @@ entitiesJSON = {
             "speed": 600,
             "damage": 1,
             "range": 1500,
-            "collisionPoints": [[4,1], [5,1], [3,8], [4,18], [6,13]]
+            "collisionPoints": [[4,1], [5,1], [3,8], [4,18], [6,13]],
+            "fireSound": new Howl ({
+                urls: ['sounds/effects/laserSound.mp3', 'sounds/effects/laserSound.ogg'],
+                volume:0.3,
+                autoplay: false,
+                buffer: false
+            })
         }
     }
 }

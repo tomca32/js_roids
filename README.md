@@ -1,3 +1,5 @@
-#JS_ROIDS
+#jsROIDS
 
-Asteroids on Javascript
+##Javascript Asteroids on HTML5 canvas
+
+Current Demo: http://jsroids.com

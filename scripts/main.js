@@ -99,6 +99,7 @@ function loaded(){
             'images/redLaser.png',
             'images/asteroid3.png',
             'images/debugPixel.jpg',
+            'images/smoke.png',
             'images/playerExhaust.png'
         ]);
         resources.onReady(init);

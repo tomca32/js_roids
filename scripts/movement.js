@@ -12,13 +12,16 @@ function updateMovement(entity, dT){ //entity to update and delta time
                 entity.thrustPlaying = true;
                 entity.thrustSound.volume(0.0);
                 entity.thrustSound.play();
-                entity.thrustSound.fadeIn(0.3, 300);
+                entity.thrustSound.fadeIn(0.3, 800);
             }
         }
 
 
         if (entity.thrust) {
             var acceleration = [entity.acceleration * dT, angleRad];
+            //console.log(entity.thrustImage.getPosition());
+
+
         } else {
             if (angleRad > Math.PI*2){
                 angleRad = angleRad - (2* Math.PI);
@@ -43,7 +46,7 @@ function updateMovement(entity, dT){ //entity to update and delta time
 
     } else {
         if (entity.thrustSound && entity.thrustPlaying){
-            entity.thrustSound.fadeOut(0.0, 300, function() {
+            entity.thrustSound.fadeOut(0.0, 500, function() {
                entity.thrustSound.stop();
                 entity.thrustPlaying = false;
             });
