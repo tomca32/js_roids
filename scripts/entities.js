@@ -16,6 +16,7 @@ var Entity = Class.extend({
         if(newEntity.name) that.name = newEntity.name;
         this.hitPoints = newEntity.hitPoints;
         this.explosion = newEntity.explosion;
+        this.explosionSound = newEntity.explosionSound;
         this.pos = [pos[0], pos[1]];
         this.speed = [0,0];
         this.thrust = false;
@@ -57,6 +58,7 @@ var Entity = Class.extend({
             gameLayer.add(newExplosion.expAnim);
             newExplosion.expAnim.start();
         }
+        if (this.explosionSound) this.explosionSound.play();
         this.image.destroy();
     }
 });
@@ -238,14 +240,21 @@ entitiesJSON = {
     "asteroids":{
         "asteroid3":{
             "name": "asteroid3",
-            "hitPoints": 3,
+            "hitPoints": 5,
             "imageURL": "images/asteroid3.png",
             "size": [100,92],
             "bonusOffset": [0,0],
             "minSpeed": 25,
             "maxSpeed": 200,
             "rotationSpeed": 120,
-            "explosion":"bla"
+            "explosion":"bla",
+            "explosionSound": new Howl ({
+                urls: ['sounds/effects/asteroidExplosion.mp3', 'sounds/effects/asteroidExplosion.ogg'],
+                volume:0.4,
+                autoplay: false,
+                buffer: true,
+                loop: false
+            })
         }
     },
     "weapons":{
@@ -261,7 +270,7 @@ entitiesJSON = {
             "collisionPoints": [[4,1], [5,1], [3,8], [4,18], [6,13]],
             "fireSound": new Howl ({
                 urls: ['sounds/effects/laserSound.mp3', 'sounds/effects/laserSound.ogg'],
-                volume:0.2,
+                volume:0.15,
                 autoplay: false,
                 buffer: true
             }),
