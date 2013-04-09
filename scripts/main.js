@@ -100,7 +100,8 @@ function loaded(){
             'images/asteroid3.png',
             'images/debugPixel.jpg',
             'images/smoke.png',
-            'images/playerExhaust.png'
+            'images/playerExhaust.png',
+            'images/asteroidExplosion.png'
         ]);
         resources.onReady(init);
 
@@ -170,13 +171,32 @@ function loaded(){
         var terrainPattern;
 
         //ZOOM
-        var zoom = function(e) {
-            var zoomAmount = e.wheelDeltaY*0.0001;
-            gameLayer.setScale(gameLayer.getScale().x+zoomAmount);
-            gameLayer.draw();
-        }
 
-        document.addEventListener("mousewheel", zoom, false);
+        document.addEventListener("mousewheel", zoom);
+        var ui = {
+            scale: 1,
+            zoomFactor: 1.1,
+            origin: {
+                x: 0,
+                y: 0
+        }};
+        function zoom (event) {
+            event.preventDefault();
+            var evt = event,
+                mx = evt.clientX /* - canvas.offsetLeft */,
+                my = evt.clientY /* - canvas.offsetTop */,
+                wheel = evt.wheelDelta / 120;
+            var zoom = (ui.zoomFactor - (evt.wheelDelta < 0 ? 0.2 : 0));
+            var newscale = ui.scale * zoom;
+            ui.origin.x = mx / ui.scale + ui.origin.x - mx / newscale;
+            ui.origin.y = my / ui.scale + ui.origin.y - my / newscale;
+
+            gameLayer.setOffset(ui.origin.x, ui.origin.y);
+            gameLayer.setScale(newscale);
+            stage.draw();
+
+            ui.scale *= zoom;
+        }
         // Update game objects
         function update(dt) {
             gameTime += dt;
@@ -221,11 +241,10 @@ function loaded(){
                 !isGameOver &&
                 Date.now() - lastFire > 100) {
                 if (mousePos){
-                    var newBullet = player.fireTurret();
+                    var newBullet = player.fireTurret(mousePos);
                     bullets.push(newBullet);
 
                     //gameLayer.add(newBullet.image);
-                    console.log(bullets);
                     lastFire = Date.now();
                 }
 

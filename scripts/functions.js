@@ -79,10 +79,8 @@ function simpleCollision(entity1, entity2) {
             var pp = [distance * Math.cos(pointNewAngle), distance * Math.sin(pointNewAngle)]; //New point position
 
             if (pp[0] >  cx[0]/2 || pp[0] < cx[0] / -2 || pp[1] > cx[1]/2 || pp[1] < cx[1]/-2) {
-                console.log(pp);
                 if (i == points -1) return false; //if last point return no collision
             } else {
-                console.log('kolizija!');
                 return true;
             }
 
@@ -104,7 +102,6 @@ function remove (original, removed){
     removed = sort_unique(removed);
     var remLength = removed.length;
     for (var i=remLength-1; i>=0; i--){
-        console.log(removed);
         original.splice(removed[i],1);
     }
     return original;
@@ -119,4 +116,26 @@ function sort_unique(arr) {
         }
     }
     return ret;
+}
+
+function createSpriteData(textureSize,rows, cols, imgSize, startFrame, endFrame){
+    var totalFrames = rows*cols;
+    var toReturn = [];
+    var startFramePosition = getFramePosition(startFrame, rows, cols, imgSize);
+    var firstRow = true;
+    for (var currentY = startFramePosition.y; currentY<textureSize[1]; currentY += imgSize[1]){
+        if (currentY != startFramePosition.y) firstRow = false;
+        for (var currentX = 0; currentX<textureSize[0]; currentX += imgSize[0]){
+            if (firstRow && currentX< startFramePosition.x) currentX = startFramePosition.x;
+            toReturn.push({x: currentX, y:currentY, width:imgSize[0], height: imgSize[1]});
+        }
+    }
+    return toReturn;
+}
+
+function getFramePosition(frameNumber, rows, cols, size){
+    var framePosition = {y: Math.floor(frameNumber/rows)*size[1], x: (frameNumber%rows)*size[0]};
+    if (framePosition.x <1) framePosition.x = 0;
+    if (framePosition.y <1) framePosition.y = 0;
+    return framePosition;
 }

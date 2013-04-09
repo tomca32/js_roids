@@ -15,6 +15,7 @@ var Entity = Class.extend({
 
         if(newEntity.name) that.name = newEntity.name;
         this.hitPoints = newEntity.hitPoints;
+        this.explosion = newEntity.explosion;
         this.pos = [pos[0], pos[1]];
         this.speed = [0,0];
         this.thrust = false;
@@ -31,18 +32,19 @@ var Entity = Class.extend({
         } else {
             this.angle = 90;
         }
+        if (newEntity.hitSound) this.hitSound = newEntity.hitSound;
         gameLayer.add(this.image);
     },
 
-    fireTurret: function(){
-        var newBullet = createEntity(entitiesJSON.weapons.redLaser, 'turretBullet', this.pos, this.angle);
-        newBullet.fireSound.play();
+    fireTurret: function(target){
+        var newBullet = createEntity(entitiesJSON.weapons.redLaser, 'turretBullet', this.pos, this.angle, this, target);
         return newBullet;
     },
 
     hit: function(attacker) {
         if (this.hitPoints > 0){
             this.hitPoints = this.hitPoints - attacker.damage;
+            if (this.hitSound) this.hitSound.play();
             if (this.hitPoints <= 0) {
                 return "dead";
             }
@@ -50,7 +52,11 @@ var Entity = Class.extend({
     },
 
     destroy: function(){
-        if (this.name) console.log(this.name+" destroyed!");
+        if (this.explosion && this.explosion != ""){
+            var newExplosion = createEntity(entitiesJSON.explosions.asteroidExplosion, 'explosion', this.pos);
+            gameLayer.add(newExplosion.expAnim);
+            newExplosion.expAnim.start();
+        }
         this.image.destroy();
     }
 });
@@ -106,13 +112,11 @@ var Bullet = Entity.extend({
         this.type = 'simple'; //simple entity has only points for collision, no polygons
         this.collisionPoints = newBullet.collisionPoints;
         this.fireSound = newBullet.fireSound;
-        console.log(this);
+        this.fireSound.play();
 
     },
     checkRange: function() {
         if (this.distanceTravelled >= this.range){
-            console.log(this);
-            console.log(this.distanceTravelled);
             this.destroy(this);
             return true;
         }
@@ -120,7 +124,37 @@ var Bullet = Entity.extend({
     }
 });
 
-function createEntity(toCreate, entityType, position, angle){
+var Explosion = Class.extend({
+    init: function(newExplosion, pos){
+        this.x = pos[0] - newExplosion.size[0]/2;
+        this.y = pos[1] - newExplosion.size[1]/2;
+        this.img = new Image();
+        this.expAnim;
+        var that = this;
+        this.img.onLoad = new function() {
+            console.log(newExplosion.animation);
+            that.expAnim = new Kinetic.Sprite({
+                x: that.x,
+                y: that.y,
+                image: that.img,
+                animation: 'explosion',
+                animations: {"explosion":newExplosion.animation},
+                frameRate: newExplosion.frameRate
+            });
+            var lastFrame = newExplosion.animation.length -1;
+            that.expAnim.afterFrame(lastFrame, that.endExplosion);
+
+
+        }
+        this.img.src = newExplosion.spritesheet;
+    },
+    endExplosion: function(){
+        this.destroy();
+
+    }
+})
+
+function createEntity(toCreate, entityType, position, angle, creator, target){
     var toReturn;
     switch (entityType){
         case 'ship':
@@ -157,8 +191,9 @@ function createEntity(toCreate, entityType, position, angle){
             toReturn = new Asteroid(toCreate, astPosition, angle, astSpeed);
             break;
         case 'turretBullet':
-            var dX = stage.getMousePosition().x - position[0];
-            var dY = stage.getMousePosition().y - position[1];
+
+            var dX = target.x - creator.image.getAbsolutePosition().x;
+            var dY = target.y - creator.image.getAbsolutePosition().y;
 
             var costempAngle = dX / (Math.sqrt(Math.pow(dX,2)+Math.pow(dY,2)));
             var tempAngle = Math.acos(costempAngle);
@@ -167,7 +202,9 @@ function createEntity(toCreate, entityType, position, angle){
             var degAngle = tempAngle*(180/Math.PI)+90;
 
             toReturn = new Bullet(toCreate, position, degAngle);
-            console.log(toReturn);
+            break;
+        case 'explosion':
+            toReturn = new Explosion(toCreate,position);
     }
     return toReturn;
 }
@@ -192,9 +229,10 @@ entitiesJSON = {
                 urls: ['sounds/effects/playerThrust.mp3', 'sounds/effects/playerThrust.ogg'],
                 volume:1.0,
                 autoplay: false,
-                buffer: false,
+                buffer: true,
                 loop: true
-            })
+            }),
+            "explosion":""
         }
     },
     "asteroids":{
@@ -206,7 +244,8 @@ entitiesJSON = {
             "bonusOffset": [0,0],
             "minSpeed": 25,
             "maxSpeed": 200,
-            "rotationSpeed": 120
+            "rotationSpeed": 120,
+            "explosion":"bla"
         }
     },
     "weapons":{
@@ -222,10 +261,24 @@ entitiesJSON = {
             "collisionPoints": [[4,1], [5,1], [3,8], [4,18], [6,13]],
             "fireSound": new Howl ({
                 urls: ['sounds/effects/laserSound.mp3', 'sounds/effects/laserSound.ogg'],
-                volume:0.3,
+                volume:0.2,
                 autoplay: false,
-                buffer: false
+                buffer: true
+            }),
+            "hitSound": new Howl ({
+                urls: ['sounds/effects/laserSoundHit.mp3', 'sounds/effects/laserSoundHit.ogg'],
+                volume:0.6,
+                autoplay: false,
+                buffer: true
             })
+        }
+    },
+    "explosions":{
+        "asteroidExplosion":{
+            "size":[128,128],
+            "frameRate":50,
+            "spritesheet": "images/asteroidExplosion.png",
+            "animation":createSpriteData([1024,1024], 8, 8, [128,128], 4)
         }
     }
 }
