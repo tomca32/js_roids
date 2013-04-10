@@ -52,9 +52,9 @@ var Entity = Class.extend({
         }
     },
 
-    destroy: function(){
-        if (this.explosion && this.explosion != ""){
-            var newExplosion = createEntity(entitiesJSON.explosions.asteroidExplosion, 'explosion', this.pos);
+    destroy: function(fading){
+        if (this.explosion && this.explosion != "" && fading!==true){
+            var newExplosion = createEntity(this.explosion, 'explosion', this.pos);
             gameLayer.add(newExplosion.expAnim);
             newExplosion.expAnim.start();
         }
@@ -119,7 +119,7 @@ var Bullet = Entity.extend({
     },
     checkRange: function() {
         if (this.distanceTravelled >= this.range){
-            this.destroy(this);
+            this.destroy(true);
             return true;
         }
         return false;
@@ -211,6 +211,21 @@ function createEntity(toCreate, entityType, position, angle, creator, target){
     return toReturn;
 }
 
+var explosions = {
+    "asteroidExplosion":{
+        "size":[128,128],
+            "frameRate":50,
+            "spritesheet": "images/asteroidExplosion.png",
+            "animation":createSpriteData([1024,1024], 8, 8, [128,128], 4)
+    },
+    "laserExplosion":{
+        "size":[16,16],
+        "frameRate":150,
+        "spritesheet": "images/laserExplosion.png",
+        "animation":createSpriteData([128,128], 8, 8, [16,16], 4)
+    }
+}
+
 entitiesJSON = {
     "ships":{
         "corvette":{
@@ -247,7 +262,7 @@ entitiesJSON = {
             "minSpeed": 25,
             "maxSpeed": 200,
             "rotationSpeed": 120,
-            "explosion":"bla",
+            "explosion": explosions.asteroidExplosion,
             "explosionSound": new Howl ({
                 urls: ['sounds/effects/asteroidExplosion.mp3', 'sounds/effects/asteroidExplosion.ogg'],
                 volume:0.4,
@@ -268,6 +283,7 @@ entitiesJSON = {
             "damage": 1,
             "range": 1500,
             "collisionPoints": [[4,1], [5,1], [3,8], [4,18], [6,13]],
+            "explosion": explosions.laserExplosion,
             "fireSound": new Howl ({
                 urls: ['sounds/effects/laserSound.mp3', 'sounds/effects/laserSound.ogg'],
                 volume:0.15,
@@ -280,14 +296,6 @@ entitiesJSON = {
                 autoplay: false,
                 buffer: true
             })
-        }
-    },
-    "explosions":{
-        "asteroidExplosion":{
-            "size":[128,128],
-            "frameRate":50,
-            "spritesheet": "images/asteroidExplosion.png",
-            "animation":createSpriteData([1024,1024], 8, 8, [128,128], 4)
         }
     }
 }
