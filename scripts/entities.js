@@ -33,7 +33,6 @@ var Entity = Class.extend({
         } else {
             this.angle = 90;
         }
-        if (newEntity.hitSound) this.hitSound = newEntity.hitSound;
         gameLayer.add(this.image);
     },
 
@@ -45,7 +44,6 @@ var Entity = Class.extend({
     hit: function(attacker) {
         if (this.hitPoints > 0){
             this.hitPoints = this.hitPoints - attacker.damage;
-            if (this.hitSound) this.hitSound.play();
             if (this.hitPoints <= 0) {
                 return "dead";
             }
@@ -57,8 +55,8 @@ var Entity = Class.extend({
             var newExplosion = createEntity(this.explosion, 'explosion', this.pos);
             gameLayer.add(newExplosion.expAnim);
             newExplosion.expAnim.start();
+            if (this.explosionSound) this.explosionSound.play();
         }
-        if (this.explosionSound) this.explosionSound.play();
         this.image.destroy();
     }
 });
@@ -134,7 +132,6 @@ var Explosion = Class.extend({
         this.expAnim;
         var that = this;
         this.img.onLoad = new function() {
-            console.log(newExplosion.animation);
             that.expAnim = new Kinetic.Sprite({
                 x: that.x,
                 y: that.y,
@@ -290,7 +287,7 @@ entitiesJSON = {
                 autoplay: false,
                 buffer: true
             }),
-            "hitSound": new Howl ({
+            "explosionSound": new Howl ({
                 urls: ['sounds/effects/laserSoundHit.mp3', 'sounds/effects/laserSoundHit.ogg'],
                 volume:0.6,
                 autoplay: false,

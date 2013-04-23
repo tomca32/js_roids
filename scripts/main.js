@@ -168,7 +168,8 @@ function loaded(){
         var lastFire = Date.now();
         var gameTime = 0;
         var isGameOver;
-        var terrainPattern;
+        var targetZoom;
+        var targetOffset= {};
 
         //ZOOM
 
@@ -179,7 +180,9 @@ function loaded(){
             origin: {
                 x: 0,
                 y: 0
-        }};
+            },
+            currentScale:1
+        };
         function zoom (event) {
             event.preventDefault();
             var evt = event,
@@ -187,13 +190,16 @@ function loaded(){
                 my = evt.clientY /* - canvas.offsetTop */,
                 wheel = evt.wheelDelta / 120;
             var zoom = (ui.zoomFactor - (evt.wheelDelta < 0 ? 0.2 : 0));
+            console.log(zoom);
             var newscale = ui.scale * zoom;
+            if (newscale > 5 || newscale<0.2) return;
             ui.origin.x = mx / ui.scale + ui.origin.x - mx / newscale;
+            targetOffset.x = mx / ui.scale + ui.origin.x - mx / newscale;
             ui.origin.y = my / ui.scale + ui.origin.y - my / newscale;
-
-            gameLayer.setOffset(ui.origin.x, ui.origin.y);
+            targetOffset.y = my / ui.scale + ui.origin.y - my / newscale;
+            //gameLayer.setOffset(ui.origin.x, ui.origin.y);
             gameLayer.setScale(newscale);
-            stage.draw();
+            //stage.draw();
 
             ui.scale *= zoom;
         }
@@ -240,14 +246,18 @@ function loaded(){
             if(input.isDown('SPACE') &&
                 !isGameOver &&
                 Date.now() - lastFire > 100) {
-                if (mousePos){
-                    var newBullet = player.fireTurret(mousePos);
-                    bullets.push(newBullet);
-
-                    //gameLayer.add(newBullet.image);
-                    lastFire = Date.now();
+                fireButton();
                 }
 
+            }
+            $(document).on('click', function(e){console.log(e.target);});
+        function fireButton() {
+            if (mousePos){
+                var newBullet = player.fireTurret(mousePos);
+                bullets.push(newBullet);
+
+                //gameLayer.add(newBullet.image);
+                lastFire = Date.now();
             }
         }
 
@@ -279,23 +289,11 @@ function loaded(){
                 }
             }
 
-
-
-            //TODO Update all the explosions
-            for(var i=0; i<explosions.length; i++) {
-                explosions[i].sprite.update(dt);
-
-                // Remove if animation is done
-                if(explosions[i].sprite.done) {
-                    explosions.splice(i, 1);
-                    i--;
-                }
-            }
-
             bullets = remove(bullets, bulletsToRemove);
             bulletsToRemove = [];
 
             //COLLISION DETECTION
+            //Bullets to Enemies
             var bulLen = bullets.length;
             var eneLen = enemies.length;
             for (var i = 0; i < bulLen; i++){
@@ -312,6 +310,9 @@ function loaded(){
                     }
                 }
             }
+
+            //
+
         } //end updateEntities
 
         function render() {
@@ -330,7 +331,9 @@ function loaded(){
                 debugObjects[i].image.setPosition(debugObjects[i].pos[0], debugObjects[i].pos[1]);
                 circle.setPosition(player.pos[0], player.pos[1]);
             }
-
+            console.log(ui.currentScale);
+            gameLayer.setOffset(player.pos[0]-(wWidth/2)/ui.scale, player.pos[1]-(wHeight/2)/ui.scale);
+            //gameLayer.setScale(newscale);
             stage.draw();
             updateHud();
            /*
