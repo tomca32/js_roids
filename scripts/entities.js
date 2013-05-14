@@ -28,7 +28,6 @@ var Entity = Class.extend({
         }
 
         if (angle!=undefined) {
-           // this.angle = angle;
             this.angle = angle;
         } else {
             this.angle = 90;
@@ -97,7 +96,6 @@ var Asteroid = Entity.extend({
     init: function(newAsteroid, pos, angle, astSpeed) {
         this._super(newAsteroid, pos, angle);
         this.speed = astSpeed;
-        //this.rotation = rotation;
         this.rotation = Math.floor(Math.random() * (newAsteroid.rotationSpeed * 2 + 1)) - newAsteroid.rotationSpeed;
         this.rotating = true;
     }
@@ -113,7 +111,6 @@ var Bullet = Entity.extend({
         this.collisionPoints = newBullet.collisionPoints;
         this.fireSound = newBullet.fireSound;
         this.fireSound.play();
-
     },
     checkRange: function() {
         if (this.distanceTravelled >= this.range){
@@ -162,7 +159,7 @@ function createEntity(toCreate, entityType, position, angle, creator, target){
         case 'asteroid':
             var direction = randomInt(1,4);
             var astPosition =[];
-            var astSpeed = [Math.floor(Math.random() * (toCreate.maxSpeed - toCreate.minSpeed + 1)) +toCreate.minSpeed,0];
+            var astSpeed = [randomInt(toCreate.minSpeed, toCreate.maxSpeed),0];
             switch (direction){
                 case 1:
                     astPosition = [randomInt(0,wWidth), -50];

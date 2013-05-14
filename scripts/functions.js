@@ -12,39 +12,6 @@ function toDegrees (radians) {
     return radians * (180/Math.PI);
 }
 
-//x' = x*cos(t) - y*sin(t)
-//y' = x*sin(t) + y*cos(t)
-//float tX = (hWidth * cosf(rad) + hHeight * sinf(rad) ) + _xpos;
-//float tY = (hWidth * sinf(rad) - hHeight * cosf(rad) ) + _ypos;
-
-function debugPixelPosition(pixelEntity, trackEntity, pixelType) {
-    var pW = trackEntity.image.getWidth()/2;
-    var pH = trackEntity.image.getHeight()/2;
-    var pX = trackEntity.pos[0];
-    var pY = trackEntity.pos[1];
-    var radius = Math.sqrt(Math.pow(pW*2,2)+Math.pow(pH*2,2));
-
-
-    var pAngle = trackEntity.angle;
-    pAngle = toRadians(pAngle);
-
-    switch (pixelType){
-        case 1:
-            pixelEntity.pos = [pX-(pW * Math.cos(pAngle)- pH * Math.sin(pAngle)), pY -(pW * Math.sin(pAngle)+ pH *Math.cos(pAngle))];
-            break;
-        case 2:
-           pixelEntity.pos = [pX-(pW * Math.cos(pAngle)+pH * Math.sin(pAngle)), pY -(pW * Math.sin(pAngle)- pH *Math.cos(pAngle))];
-            break;
-        case 3:
-           pixelEntity.pos = [pX+(pW * Math.cos(pAngle)-pH * Math.sin(pAngle)), pY +(pW * Math.sin(pAngle)+ pH *Math.cos(pAngle))];
-            break;
-        case 4:
-            pixelEntity.pos = [pX+(pW * Math.cos(pAngle)+pH * Math.sin(pAngle)), pY +(pW * Math.sin(pAngle)- pH *Math.cos(pAngle))];
-            break;
-    }
-
-
-}
 
 function simpleCollision(entity1, entity2) {
     if (entity1.type == 'simple' || entity2.type == 'simple') {
@@ -99,7 +66,7 @@ function remove (original, removed){
     if (removed.length<1) {
         return original;
     }
-    removed = sort_unique(removed);
+    removed = sort_unique(removed); //error checking to prevent duplicate removal
     var remLength = removed.length;
     for (var i=remLength-1; i>=0; i--){
         original.splice(removed[i],1);
