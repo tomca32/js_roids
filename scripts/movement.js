@@ -64,13 +64,13 @@ function updateMovement(entity, dT){ //entity to update and delta time
     var dX = entity.speed[0]*Math.cos(entity.speed[1])*dT;
     var dY = entity.speed[0]*Math.sin(entity.speed[1])*dT;
     var distance = Math.sqrt(Math.pow(dX,2)+ Math.pow(dY,2));
-    entity.pos[0] = entity.pos[0]+(dX);
-    entity.pos[1] = entity.pos[1]+(dY);
+    entity.pos.x = entity.pos.x+(dX);
+    entity.pos.y = entity.pos.y+(dY);
     entity.distanceTravelled += distance;
     entity.image.setRotationDeg(entity.angle); //Kinetic method for rotating image
 
     if (entity.thrustImage){
-        entity.thrustImage.setPosition(entity.pos[0]+entity.thrustPosition[0]*Math.cos(angleRad), entity.pos[1]+entity.thrustPosition[0]*Math.sin(angleRad));
+        entity.thrustImage.setPosition(entity.pos.x+entity.thrustPosition[0]*Math.cos(angleRad), entity.pos.y+entity.thrustPosition[0]*Math.sin(angleRad));
         entity.thrustImage.setRotationDeg(entity.angle);
 
         if (entity.thrust){

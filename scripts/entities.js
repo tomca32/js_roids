@@ -4,7 +4,7 @@ var Entity = Class.extend({
         var thisImage = new Image();
         thisImage.src = newEntity.imageURL;
         that.image = new Kinetic.Image({
-            x: pos[0],
+            x: pos.x,
             y: pos[1],
             image: thisImage,
             width: newEntity.size[0],
@@ -17,7 +17,7 @@ var Entity = Class.extend({
         this.hitPoints = newEntity.hitPoints;
         this.explosion = newEntity.explosion;
         this.explosionSound = newEntity.explosionSound;
-        this.pos = [pos[0], pos[1]];
+        this.pos = {x:pos.x, y:pos.y};
         this.speed = [0,0];
         this.thrust = false;
         this.reverse = false;
@@ -36,8 +36,17 @@ var Entity = Class.extend({
     },
 
     fireTurret: function(target){
-        var newBullet = createEntity(entitiesJSON.weapons.redLaser, 'turretBullet', this.pos, this.angle, this, target);
-        return newBullet;
+
+        var dX = target.x - this.image.getAbsolutePosition().x;
+        var dY = target.y - this.image.getAbsolutePosition().y;
+
+        var costempAngle = dX / (Math.sqrt(Math.pow(dX,2)+Math.pow(dY,2)));
+        var tempAngle = Math.acos(costempAngle);
+        if (dY<0) tempAngle = 2*Math.PI - Math.abs(tempAngle);
+
+        var degAngle = tempAngle*(180/Math.PI)+90;
+
+        return new Bullet(entitiesJSON.weapons.redLaser, this.pos, degAngle);
     },
 
     hit: function(attacker) {
@@ -51,7 +60,7 @@ var Entity = Class.extend({
 
     destroy: function(fading){
         if (this.explosion && this.explosion != "" && fading!==true){
-            var newExplosion = createEntity(this.explosion, 'explosion', this.pos);
+            var newExplosion = new Explosion(this.explosion,this.pos);
             gameLayer.add(newExplosion.expAnim);
             newExplosion.expAnim.start();
             if (this.explosionSound) this.explosionSound.play();
@@ -72,8 +81,8 @@ var Ship = Entity.extend({
             var thrustImg = new Image();
             thrustImg.src =newShip.thrustURL;
             this.thrustImage = new Kinetic.Image({
-                x: pos[0]+newShip.thrustPosition[0],
-                y: pos[1]+newShip.thrustPosition[1],
+                x: pos.x+newShip.thrustPosition[0],
+                y: pos.y+newShip.thrustPosition[1],
                 image: thrustImg,
                 opacity:0,
                 offset:[newShip.thrustSize[0]/2,newShip.thrustSize[1]/2],
@@ -93,8 +102,8 @@ var Ship = Entity.extend({
 });
 
 var Asteroid = Entity.extend({
-    init: function(newAsteroid, pos, angle, astSpeed) {
-        this._super(newAsteroid, pos, angle);
+    init: function(newAsteroid, pos, astSpeed) {
+        this._super(newAsteroid, pos, 0);
         this.speed = astSpeed;
         this.rotation = Math.floor(Math.random() * (newAsteroid.rotationSpeed * 2 + 1)) - newAsteroid.rotationSpeed;
         this.rotating = true;
@@ -123,8 +132,8 @@ var Bullet = Entity.extend({
 
 var Explosion = Class.extend({
     init: function(newExplosion, pos){
-        this.x = pos[0] - newExplosion.size[0]/2;
-        this.y = pos[1] - newExplosion.size[1]/2;
+        this.x = pos.x - newExplosion.size[0]/2;
+        this.y = pos.y - newExplosion.size[1]/2;
         this.img = new Image();
         this.expAnim;
         var that = this;
@@ -140,8 +149,7 @@ var Explosion = Class.extend({
             var lastFrame = newExplosion.animation.length -1;
             that.expAnim.afterFrame(lastFrame, that.endExplosion);
 
-
-        }
+        };
         this.img.src = newExplosion.spritesheet;
     },
     endExplosion: function(){
@@ -151,11 +159,9 @@ var Explosion = Class.extend({
 })
 
 function createEntity(toCreate, entityType, position, angle, creator, target){
+    /*
     var toReturn;
     switch (entityType){
-        case 'ship':
-            toReturn = new Ship(toCreate, position, angle);
-            break;
         case 'asteroid':
             var direction = randomInt(1,4);
             var astPosition =[];
@@ -186,23 +192,8 @@ function createEntity(toCreate, entityType, position, angle, creator, target){
             }
             toReturn = new Asteroid(toCreate, astPosition, angle, astSpeed);
             break;
-        case 'turretBullet':
-
-            var dX = target.x - creator.image.getAbsolutePosition().x;
-            var dY = target.y - creator.image.getAbsolutePosition().y;
-
-            var costempAngle = dX / (Math.sqrt(Math.pow(dX,2)+Math.pow(dY,2)));
-            var tempAngle = Math.acos(costempAngle);
-            if (dY<0) tempAngle = 2*Math.PI - Math.abs(tempAngle);
-
-            var degAngle = tempAngle*(180/Math.PI)+90;
-
-            toReturn = new Bullet(toCreate, position, degAngle);
-            break;
-        case 'explosion':
-            toReturn = new Explosion(toCreate,position);
     }
-    return toReturn;
+    return toReturn;   */
 }
 
 var explosions = {

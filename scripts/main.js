@@ -121,7 +121,7 @@ function loaded(){
         //Game State
         gameLayer = new Kinetic.Layer();
 
-        var player = createEntity(entitiesJSON.ships.corvette, 'ship', [200,200], 0);
+        var player = new Ship(entitiesJSON.ships.corvette, {x:0, y:0}, 0);//createEntity(entitiesJSON.ships.corvette, 'ship', [200,200], 0);
         stage.add(gameLayer);
         var bullets = [];
         var bulletsToRemove =[];
@@ -154,7 +154,7 @@ function loaded(){
                 mx = evt.clientX /* - canvas.offsetLeft */,
                 my = evt.clientY /* - canvas.offsetTop */;
             var zoom = (z.zoomFactor - (evt.wheelDelta < 0 ? 0.2 : 0));
-            console.log(evt.wheelDelta);
+
             var newscale = z.scale * zoom;
             if (newscale > 5 || newscale<0.2) return;
             z.origin.x = mx / z.scale + z.origin.x - mx / newscale;
@@ -165,12 +165,46 @@ function loaded(){
 
             z.scale *= zoom;
         }
+
+        function randomAngle() {
+            return randomReal(0, 2*Math.PI);
+        }
+
+        function getMinimum(){
+            //gets minimum spawn distance
+            var min = Math.sqrt(Math.pow(wWidth,2)+Math.pow(wHeight,2)) / z.scale;
+
+            return min;
+        }
+
+        function getRandomPosition(origin, minDistance, range){
+            var distance = randomInt(minDistance, minDistance+range);
+            var angle = randomAngle();
+            return {x:origin.x+Math.cos(angle)*distance, y:origin.y+Math.sin(angle)*distance};
+        }
+
+        function getRandomVector(position, target, minSpeed, maxSpeed) {
+            var speed = randomInt(minSpeed, maxSpeed);
+
+            var tempVector = [target.x - position.x, target.y - position.y];
+
+
+            var magnitude = Math.sqrt(Math.pow(tempVector[0],2) + Math.pow(tempVector[1],2));
+            tempVector =[tempVector[0]/magnitude, tempVector[1]/magnitude];
+            console.log(tempVector);
+            var angle = Math.atan2(tempVector[0], tempVector[1]*(-1))-Math.PI/2;
+            console.log(angle);
+            return [speed, angle];
+        }
+
         // Update game objects
         function update(dt) {
             gameTime += dt;
             if (Math.random() < 0.02){
-                var astPosition = [Math.floor(Math.random() * (1200 - 0 + 1)) + 0, Math.floor(Math.random() * (800 - 0 + 1)) + 0];
-                var newEnemy = createEntity(entitiesJSON.asteroids.asteroid3, 'asteroid', astPosition,0);
+                var center = {x:gameLayer.getOffset().x + (wWidth / z.scale)/2, y: gameLayer.getOffset().y + (wHeight / z.scale)/2};
+                var enemyPosition = getRandomPosition(center, getMinimum(), 100);
+                var enemySpeed = getRandomVector(enemyPosition, center, entitiesJSON.asteroids.asteroid3.minSpeed, entitiesJSON.asteroids.asteroid3.maxSpeed);
+                var newEnemy = new Asteroid(entitiesJSON.asteroids.asteroid3, enemyPosition, enemySpeed);//createEntity(entitiesJSON.asteroids.asteroid3, 'asteroid', 0,0);
                 enemies.push(newEnemy);
             }
             handleInput(dt);
@@ -201,9 +235,7 @@ function loaded(){
                 if (player.angle > 360) player.angle -= 360;
             }
 
-            if(input.isDown('SPACE') &&
-                !isGameOver &&
-                Date.now() - lastFire > 100) {
+            if(input.isDown('SPACE') && Date.now() - lastFire > 100) {
                 fireButton();
             }
 
@@ -268,16 +300,19 @@ function loaded(){
         } //end updateEntities
 
         function render() {
-            player.image.setPosition(player.pos[0], player.pos[1]);
+            player.image.setPosition(player.pos.x, player.pos.y);
             for(var i=0; i<enemies.length; i++) {
-                enemies[i].image.setPosition(enemies[i].pos[0], enemies[i].pos[1]);
+                enemies[i].image.setPosition(enemies[i].pos.x, enemies[i].pos.y);
             }
 
             for(var i=0; i<bullets.length; i++) {
-                bullets[i].image.setPosition(bullets[i].pos[0], bullets[i].pos[1]);
+                bullets[i].image.setPosition(bullets[i].pos.x, bullets[i].pos.y);
             }
 
-            gameLayer.setOffset(player.pos[0]-(wWidth/2)/z.scale, player.pos[1]-(wHeight/2)/z.scale);
+            gameLayer.setOffset(player.pos.x-(wWidth/2)/z.scale, player.pos.y-(wHeight/2)/z.scale);
+
+            //gameLayer.setOffset(z.origin.x, z.origin.y);
+            //console.log(gameLayer.getOffset());
 
             stage.draw();
             updateHud();
@@ -294,8 +329,8 @@ function loaded(){
         function updateHud(){
 
             $('#hud').html("" +
-                "<p unselectable='on'>X: "+player.pos[0]+"</p>" +
-                "<p unselectable='on'>Y: "+player.pos[1]+"</p>" +
+                "<p unselectable='on'>X: "+player.pos.x+"</p>" +
+                "<p unselectable='on'>Y: "+player.pos.y+"</p>" +
                 "<p unselectable='on'>Speed: "+player.speed[0]+"</p>" +
                 "<p unselectable='on'>Speed Angle: "+player.speed[1]+"</p>" +
                 "<p unselectable='on'>Angle: "+player.angle+"</p>" +

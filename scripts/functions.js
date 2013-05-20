@@ -25,8 +25,8 @@ function simpleCollision(entity1, entity2) {
             complexType = entity1;
         }
 
-        var simpleEntityX = simpleType.pos[0]-complexType.pos[0];
-        var simpleEntityY = simpleType.pos[1]-complexType.pos[1];
+        var simpleEntityX = simpleType.pos.x-complexType.pos.x;
+        var simpleEntityY = simpleType.pos.y-complexType.pos.y;
         var distanceBetweenEntities = Math.sqrt(Math.pow(simpleEntityX,2)+Math.pow(simpleEntityY,2));
         var complexEntityRadius = Math.sqrt(Math.pow(complexType.image.getWidth()/2, 2) + Math.pow(complexType.image.getHeight()/2,2));
         if (distanceBetweenEntities > complexEntityRadius) {
@@ -40,7 +40,7 @@ function simpleCollision(entity1, entity2) {
         for (var i = 0; i < points; i++ ) {
             var cx = [complexType.image.getWidth(), complexType.image.getHeight()]; //Complex Entity width and height
             var pointPosition = [simpleEntityX + simpleType.collisionPoints[i][0], simpleEntityY + simpleType.collisionPoints[i][1]];
-            var pointAngle = Math.atan(pointPosition[0] / pointPosition[1]*(-1));
+            var pointAngle = Math.atan2(pointPosition[0], pointPosition[1]*(-1));
             var distance = Math.sqrt(Math.pow(pointPosition[0],2)+Math.pow(pointPosition[1],2));
             var pointNewAngle = complexEntityAngle - pointAngle;
             var pp = [distance * Math.cos(pointNewAngle), distance * Math.sin(pointNewAngle)]; //New point position
